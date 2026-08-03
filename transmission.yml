@@ -1,0 +1,33 @@
+name: BBS Transmission
+description: Open a forum thread that appears inside the ETA BBS message boards.
+title: ''
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Electronik Tribulation Army BBS
+        The board label supplied by the BBS determines which message base receives this thread.
+  - type: textarea
+    id: message
+    attributes:
+      label: Transmission
+      description: Write the complete opening message.
+      placeholder: Enter your transmission…
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources or supporting links
+      description: Optional. Add public sources when the post makes factual claims.
+      placeholder: One source per line.
+    validations:
+      required: false
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Station rules
+      options:
+        - label: I will not use this BBS for illegal activity, malware distribution, doxxing, harassment, or abuse.
+          required: true

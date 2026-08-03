@@ -1,0 +1,17 @@
+{
+  "name": "Electronik Tribulation Army BBS",
+  "short_name": "ETA BBS",
+  "description": "A GitHub-native web BBS with message boards, public chat, and browser door games.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#030504",
+  "theme_color": "#050807",
+  "icons": [
+    {
+      "src": "./assets/eta-sigil.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

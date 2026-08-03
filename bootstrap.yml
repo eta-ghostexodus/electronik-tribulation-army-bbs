@@ -1,0 +1,87 @@
+name: Bootstrap ETA BBS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create BBS labels and starter channels
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const labels = [
+              { name: 'board:general', color: '39ff88', description: 'ETA BBS — General Transmissions' },
+              { name: 'board:hacker-culture', color: '00e5ff', description: 'ETA BBS — Hacker Culture' },
+              { name: 'board:cybersecurity', color: '2ea043', description: 'ETA BBS — Defensive Cybersecurity' },
+              { name: 'board:intelligence', color: '8957e5', description: 'ETA BBS — Intelligence Operations and OSINT' },
+              { name: 'board:door-games', color: 'ffd166', description: 'ETA BBS — Door Games and score talk' },
+              { name: 'eta:chat', color: '00e5ff', description: 'ETA BBS public chat channel' },
+              { name: 'eta:announcement', color: 'ff3b81', description: 'ETA BBS sysop announcement' },
+              { name: 'score:submission', color: 'ffd166', description: 'Door game score submission' },
+              { name: 'score:verified', color: '39ff88', description: 'Score reviewed by a repository maintainer' }
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label.name });
+                await github.rest.issues.updateLabel({ owner, repo, name: label.name, new_name: label.name, color: label.color, description: label.description });
+                core.info(`Updated label: ${label.name}`);
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({ owner, repo, ...label });
+                core.info(`Created label: ${label.name}`);
+              }
+            }
+
+            async function ensureIssue({ title, body, labels }) {
+              const existing = await github.paginate(github.rest.issues.listForRepo, {
+                owner, repo, state: 'all', labels: labels.join(','), per_page: 100
+              });
+              const match = existing.find(issue => !issue.pull_request && issue.title === title);
+              if (match) {
+                core.info(`Existing channel: #${match.number} ${title}`);
+                return match;
+              }
+              const created = await github.rest.issues.create({ owner, repo, title, body, labels });
+              core.info(`Created channel: #${created.data.number} ${title}`);
+              return created.data;
+            }
+
+            await ensureIssue({
+              title: '[ETA CHAT] General Signal',
+              labels: ['eta:chat'],
+              body: [
+                '# ETA Public Chat Channel',
+                '',
+                'Post comments below to transmit into the BBS public chat box.',
+                '',
+                '**Do not close or delete this Issue.** The GitHub Pages interface discovers it through the `eta:chat` label.',
+                '',
+                'House rules: no illegal activity, malware distribution, doxxing, targeted harassment, or abuse.'
+              ].join('\n')
+            });
+
+            await ensureIssue({
+              title: 'Welcome to the Electronik Tribulation Army BBS',
+              labels: ['board:general'],
+              body: [
+                '# Carrier established',
+                '',
+                'Introduce yourself, test the door arcade, and help shape the station.',
+                '',
+                'This thread appears inside the BBS Message Boards screen because it carries the `board:general` label.'
+              ].join('\n')
+            });
+
+            await ensureIssue({
+              title: 'SYSOP BULLETIN — GitHub carrier online',
+              labels: ['eta:announcement'],
+              body: 'The GitHub-native ETA BBS has been initialized. Edit `config.js` to change the station name, boards, theme, rules, and repository settings.'
+            });

@@ -1,0 +1,39 @@
+name: Door Game Score
+description: Submit a local ETA BBS door-game score to the public leaderboard.
+title: '[SCORE] '
+labels:
+  - score:submission
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Global score packet
+        Scores are self-reported unless a maintainer adds the `score:verified` label.
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      placeholder: NEON SNAKE
+    validations:
+      required: true
+  - type: input
+    id: score
+    attributes:
+      label: Score
+      placeholder: '2400'
+    validations:
+      required: true
+  - type: input
+    id: callsign
+    attributes:
+      label: Callsign
+      placeholder: GHOSTEXODUS
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshot or run notes
+      description: Optional. Attach a screenshot if the sysop requires verification.
+    validations:
+      required: false

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="ETA sigil">
+  <rect width="128" height="128" fill="#030504"/>
+  <g transform="translate(64 64) rotate(45) translate(-64 -64)">
+    <rect x="22" y="22" width="84" height="84" rx="5" fill="#06120b" stroke="#39ff88" stroke-width="4"/>
+    <rect x="32" y="32" width="64" height="64" fill="none" stroke="#00e5ff" stroke-width="2" opacity=".65"/>
+  </g>
+  <text x="64" y="73" text-anchor="middle" font-family="monospace" font-size="30" font-weight="700" fill="#39ff88">ETA</text>
+  <circle cx="64" cy="101" r="3" fill="#ff3b81"/>
+</svg>

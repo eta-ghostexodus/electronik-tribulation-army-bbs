@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050807">
+  <meta name="description" content="Electronik Tribulation Army BBS — a GitHub-native web BBS with forums, public comms, and browser door games.">
+  <title>Electronik Tribulation Army BBS</title>
+  <link rel="icon" href="./assets/eta-sigil.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <div id="boot" class="boot-screen">
+    <pre id="bootText"></pre><span class="cursor">█</span>
+  </div>
+
+  <div id="identityModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="identityTitle">
+    <div class="terminal-window auth-window">
+      <div class="window-bar"><span>ETA://IDENTITY_GATE</span><span class="lights">● ● ●</span></div>
+      <div class="pane">
+        <h2 id="identityTitle">ESTABLISH LOCAL IDENTITY</h2>
+        <p class="muted">Your callsign is stored only in this browser. Forum and chat submissions are ultimately posted under your GitHub account.</p>
+        <form id="identityForm" class="stack-form">
+          <label>CALLSIGN<input name="callsign" maxlength="32" placeholder="GHOSTEXODUS" required></label>
+          <label>GITHUB USERNAME <span class="field-note">OPTIONAL</span><input name="githubUsername" maxlength="39" placeholder="octocat"></label>
+          <div class="two-col">
+            <label>REPOSITORY OWNER <span class="field-note">OPTIONAL</span><input name="owner" maxlength="39" placeholder="auto-detect"></label>
+            <label>REPOSITORY NAME <span class="field-note">OPTIONAL</span><input name="repo" maxlength="100" placeholder="auto-detect"></label>
+          </div>
+          <button class="action primary" type="submit">OPEN CARRIER</button>
+          <button id="enterDemoBtn" class="action" type="button">ENTER DEMO NODE</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app-shell hidden">
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="sigil"><span class="sigil-inner">E<span>T</span>A</span></div>
+        <div>
+          <h1 id="bbsName">ELECTRONIK TRIBULATION ARMY BBS</h1>
+          <div id="tagline" class="tagline">SIGNAL THROUGH THE STATIC</div>
+        </div>
+      </div>
+      <div class="status-cluster">
+        <span id="nodeDot" class="status-dot"></span><span id="nodeStatus">NODE INITIALIZING</span>
+        <span id="apiRate" title="GitHub API requests remaining"></span>
+        <span id="clock"></span>
+        <button id="profileBtn" class="tiny-button">IDENTITY</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="operator-card">
+        <div class="avatar">&gt;_</div>
+        <div><small>CONNECTED AS</small><strong id="operatorName">GUEST</strong><span id="operatorRole">LOCAL OPERATOR</span></div>
+      </div>
+      <nav id="mainNav" class="nav-stack">
+        <button data-view="home" class="active"><b>01</b> MAINFRAME</button>
+        <button data-view="boards"><b>02</b> MESSAGE BOARDS</button>
+        <button data-view="chat"><b>03</b> PUBLIC CHAT</button>
+        <button data-view="doors"><b>04</b> DOOR GAMES</button>
+        <button data-view="members"><b>05</b> OPERATORS</button>
+        <button data-view="scores"><b>06</b> HIGH SCORES</button>
+        <button data-view="sysop"><b>99</b> SYSOP CONSOLE</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div>HOST: <span>GITHUB PAGES</span></div>
+        <div>DATA: <span>GITHUB ISSUES</span></div>
+        <div id="locationLabel">NODE: THE UNDERNET</div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section id="view-home" class="view active">
+        <div class="hero terminal-window">
+          <div class="window-bar"><span>ETA://WELCOME.EXE</span><span id="modeBadge" class="mode-badge">BOOTING</span></div>
+          <div class="hero-grid">
+            <div>
+              <div class="ascii-logo" aria-label="ETA BBS">
+<pre>███████╗████████╗ █████╗
+██╔════╝╚══██╔══╝██╔══██╗
+█████╗     ██║   ███████║
+██╔══╝     ██║   ██╔══██║
+███████╗   ██║   ██║  ██║
+╚══════╝   ╚═╝   ╚═╝  ╚═╝</pre>
+              </div>
+              <h2 id="heroTagline">SIGNAL THROUGH THE STATIC</h2>
+              <p id="announcement" class="announcement"></p>
+              <div class="button-row">
+                <button class="action primary jump" data-view="boards">ENTER THE BOARDS</button>
+                <button class="action jump" data-view="chat">MONITOR COMMS</button>
+                <button class="action jump" data-view="doors">LAUNCH A DOOR</button>
+              </div>
+            </div>
+            <div class="radar-panel">
+              <div class="radar"><div class="sweep"></div><i></i><i></i><i></i></div>
+              <div class="radar-label">PUBLIC REPOSITORY ACTIVITY</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="stat-card"><span>OPERATORS</span><strong id="statUsers">0</strong><em>DETECTED IDENTITIES</em></article>
+          <article class="stat-card"><span>TRANSMISSIONS</span><strong id="statPosts">0</strong><em>FORUM THREADS</em></article>
+          <article class="stat-card"><span>CHAT BURSTS</span><strong id="statChat">0</strong><em>PUBLIC COMMENTS</em></article>
+          <article class="stat-card"><span>DOOR RUNS</span><strong id="statScores">0</strong><em>LOCAL SCORE PACKETS</em></article>
+        </div>
+
+        <div class="home-grid">
+          <div class="terminal-window info-panel">
+            <div class="window-bar"><span>SYSTEM BULLETIN</span><span class="blink">LIVE</span></div>
+            <div class="bulletin-columns">
+              <div><h3>HOUSE RULES</h3><p id="rulesText"></p></div>
+              <div><h3>QUICK KEYS</h3><p><kbd>ALT</kbd> + <kbd>1–6</kbd> changes sections. <kbd>ESC</kbd> closes overlays. Game progress stays in your browser.</p></div>
+              <div><h3>GITHUB NATIVE</h3><p>Threads, replies, chat comments, identities, moderation, and score submissions remain on GitHub. No server, database, password vault, or exposed API token.</p></div>
+            </div>
+          </div>
+          <div class="terminal-window recent-panel">
+            <div class="window-bar"><span>LATEST TRAFFIC</span><button id="refreshOverview" class="bar-button">REFRESH</button></div>
+            <div id="recentTraffic" class="recent-traffic"><div class="empty-state">Scanning repository traffic…</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-boards" class="view">
+        <div class="section-heading"><div><small>ARCHIVE://GITHUB_ISSUES</small><h2>MESSAGE BOARDS</h2></div><button id="newPostBtn" class="action primary">NEW TRANSMISSION</button></div>
+        <div class="boards-layout">
+          <div id="boardList" class="board-list"></div>
+          <div id="postArea" class="terminal-window post-area">
+            <div class="window-bar"><span id="postAreaTitle">SELECT A BOARD</span><span id="postCount">0 ITEMS</span></div>
+            <div id="postList" class="post-list"><div class="empty-state">Select a board to inspect transmissions.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-chat" class="view">
+        <div class="section-heading"><div><small>COMMS://GITHUB_COMMENT_CHANNEL</small><h2>PUBLIC CHAT</h2></div><div id="chatStatus" class="online-pill"><span></span> UPLINK READY</div></div>
+        <div class="terminal-window chat-window github-chat-window">
+          <div class="window-bar"><span>#GENERAL_SIGNAL</span><span id="chatRefreshLabel">REFRESH: MANUAL</span></div>
+          <div id="chatLog" class="chat-log"><div class="empty-state">Opening public signal…</div></div>
+          <form id="chatForm" class="chat-entry">
+            <span id="chatPrompt">operator@eta:~$</span>
+            <input name="body" maxlength="1000" autocomplete="off" placeholder="Compose a message, then continue on GitHub…" required>
+            <button type="submit">SEND</button>
+          </form>
+        </div>
+        <div class="chat-help">
+          GitHub Pages cannot post securely by itself. SEND copies your message and opens the chat Issue; paste it into GitHub’s comment box. The BBS refreshes the shared feed after you return.
+        </div>
+      </section>
+
+      <section id="view-doors" class="view">
+        <div class="section-heading"><div><small>DOORS://BROWSER_ARCADE</small><h2>DOOR GAMES</h2></div><div class="credit-line">CREDITS: ∞</div></div>
+        <div id="doorGrid" class="door-grid"></div>
+      </section>
+
+      <section id="view-members" class="view">
+        <div class="section-heading"><div><small>IDENTITIES://GITHUB</small><h2>OPERATORS</h2></div><button id="refreshMembers" class="action">REFRESH</button></div>
+        <div class="terminal-window"><div class="window-bar"><span>ACTIVE REPOSITORY IDENTITIES</span><span id="memberCount">0</span></div><div id="memberGrid" class="member-grid"></div></div>
+      </section>
+
+      <section id="view-scores" class="view">
+        <div class="section-heading"><div><small>DOORS://LEADERBOARD</small><h2>HIGH SCORES</h2></div><div class="button-row compact"><button id="submitBestScore" class="action primary">SUBMIT BEST LOCAL SCORE</button><button id="refreshScores" class="action">REFRESH</button></div></div>
+        <div class="score-tabs">
+          <button class="score-tab active" data-score-tab="global">GLOBAL GITHUB</button>
+          <button class="score-tab" data-score-tab="local">LOCAL DEVICE</button>
+        </div>
+        <div class="terminal-window"><div class="window-bar"><span id="scoreBoardTitle">GLOBAL SCOREBOARD</span><span>TOP 100</span></div><div id="scoreTable" class="score-table"></div></div>
+      </section>
+
+      <section id="view-sysop" class="view">
+        <div class="section-heading"><div><small>ROOT://STATIC_CONFIG</small><h2>SYSOP CONSOLE</h2></div><div class="danger-pill">LOCAL PREVIEW MODE</div></div>
+        <div class="sysop-grid">
+          <form id="configForm" class="terminal-window config-form">
+            <div class="window-bar"><span>STATION CONFIGURATION</span><span>EXPORTABLE</span></div>
+            <div class="form-pad">
+              <div class="sysop-notice">Changes made here affect only this browser until you export <code>config.js</code> and commit it to the repository.</div>
+              <label>BBS NAME<input name="bbsName" maxlength="80"></label>
+              <div class="two-col"><label>SHORT NAME<input name="shortName" maxlength="24"></label><label>SYSOP NAME<input name="sysopName" maxlength="40"></label></div>
+              <label>TAGLINE<input name="tagline" maxlength="100"></label>
+              <label>NODE LOCATION<input name="location" maxlength="80"></label>
+              <label>ANNOUNCEMENT<textarea name="announcement" rows="4" maxlength="1200"></textarea></label>
+              <label>HOUSE RULES<textarea name="rules" rows="4" maxlength="1800"></textarea></label>
+              <div class="two-col"><label>GITHUB OWNER<input name="owner" maxlength="39"></label><label>GITHUB REPOSITORY<input name="repo" maxlength="100"></label></div>
+              <div class="two-col"><label>REFRESH SECONDS<input name="refreshSeconds" type="number" min="60" max="900"></label><label class="check-row"><input name="showUnverifiedScores" type="checkbox"> SHOW UNVERIFIED SCORES</label></div>
+              <h3>BOARD DEFINITIONS</h3>
+              <div id="boardEditor"></div>
+              <button id="addBoardBtn" type="button" class="action">+ ADD BOARD</button>
+              <div class="button-row">
+                <button type="submit" class="action primary">APPLY LOCAL PREVIEW</button>
+                <button id="exportConfigBtn" type="button" class="action">EXPORT CONFIG.JS</button>
+                <button id="resetConfigBtn" type="button" class="action danger-action">RESET LOCAL OVERRIDES</button>
+              </div>
+            </div>
+          </form>
+          <div class="sysop-side">
+            <div class="terminal-window">
+              <div class="window-bar"><span>DEPLOYMENT CONTROL</span><span>GITHUB</span></div>
+              <div class="form-pad deploy-actions">
+                <p id="repoDiagnostic" class="diagnostic-line">Repository not detected.</p>
+                <button id="openRepoBtn" class="action primary wide">OPEN REPOSITORY</button>
+                <button id="openBootstrapBtn" class="action wide">RUN BBS BOOTSTRAP WORKFLOW</button>
+                <button id="openPagesBtn" class="action wide">OPEN PAGES SETTINGS</button>
+                <button id="openIssuesBtn" class="action wide">OPEN ISSUE CONTROL</button>
+              </div>
+            </div>
+            <div class="terminal-window setup-checklist">
+              <div class="window-bar"><span>FIRST DEPLOY CHECKLIST</span><span>4 STEPS</span></div>
+              <ol>
+                <li>Create a public GitHub repository and upload this project.</li>
+                <li>In Settings → Pages, choose <strong>GitHub Actions</strong>.</li>
+                <li>Run <strong>Bootstrap ETA BBS</strong> in the Actions tab.</li>
+                <li>Wait for <strong>Deploy ETA BBS</strong> to publish the site.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="threadModal" class="modal hidden">
+    <div class="terminal-window post-modal-window github-thread-window">
+      <div class="window-bar"><span>TRANSMISSION VIEWER</span><button class="close-button" data-close="threadModal">×</button></div>
+      <div id="threadDetail" class="post-detail"></div>
+      <div class="reply-entry github-reply-entry"><span>REPLIES ARE SIGNED BY GITHUB</span><button id="replyOnGithub" class="action primary">REPLY ON GITHUB</button></div>
+    </div>
+  </div>
+
+  <div id="gameModal" class="modal hidden game-modal">
+    <div class="terminal-window game-window">
+      <div class="window-bar"><span id="gameTitle">DOOR.EXE</span><button class="close-button" data-close="gameModal">×</button></div>
+      <div id="gameHost" class="game-host"></div>
+      <div id="scoreDock" class="score-dock hidden">
+        <span>LOCAL SCORE CAPTURED: <strong id="capturedScore">0</strong></span>
+        <button id="submitCapturedScore" class="action primary">SUBMIT TO GITHUB</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./config.js"></script>
+  <script src="./doors/doors.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
